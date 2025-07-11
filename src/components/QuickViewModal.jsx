@@ -4,9 +4,11 @@ import { X, Star, MapPin, Gem, Award, Truck, Shield, Heart, MessageCircle, Eye, 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useModal } from '../contexts/ModalContext';
+import { useNavigate } from 'react-router-dom';
 
 const QuickViewModal = ({ isOpen, onClose, product, language }) => {
   const { openModal } = useModal();
+  const navigate = useNavigate();
 
   if (!product) return null;
 
@@ -112,18 +114,38 @@ const QuickViewModal = ({ isOpen, onClose, product, language }) => {
   const t = translations[language] || translations.en;
 
   const handleInquiry = () => {
-    onClose(); // Close quick view
-    openModal('contactForm', { product, language }); // Open contact form
+    const phoneNumber = '94742068566'; // WhatsApp number from the website
+    const message = `Hello! I'm interested in the ${product.name} (${product.price}). Could you please provide more information about this gemstone?`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
-  const handleContactExpert = () => {
-    const message = `Hello! I'm interested in the ${product.name} and would like to speak with an expert about this gemstone.`;
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/94742068566?text=${encodedMessage}`, '_blank');
+  const handleAskQuestion = () => {
+    onClose(); // Close quick view
+    navigate('/contact'); // Navigate to contact page
   };
 
   const handleCallNow = () => {
     window.open('tel:+94742068566', '_self');
+  };
+
+  const handleAddToWishlist = () => {
+    // Get current favorites from localStorage
+    try {
+      const savedFavorites = localStorage.getItem('gemify_favorites');
+      const currentFavorites = savedFavorites ? JSON.parse(savedFavorites) : [];
+      
+      // Add product to favorites if not already there
+      if (!currentFavorites.includes(product.id)) {
+        currentFavorites.push(product.id);
+        localStorage.setItem('gemify_favorites', JSON.stringify(currentFavorites));
+        
+        // You could add a toast notification here
+        console.log('Added to favorites:', product.name);
+      }
+    } catch (error) {
+      console.warn('Failed to add to favorites:', error);
+    }
   };
 
   return (
@@ -289,12 +311,12 @@ const QuickViewModal = ({ isOpen, onClose, product, language }) => {
                     {/* Secondary Actions */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Button 
-                        onClick={handleContactExpert}
+                        onClick={handleAskQuestion}
                         variant="outline"
                         className="w-full py-3 rounded-lg border-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mobile-touch-target"
                       >
                         <MessageCircle className="h-4 w-4 mr-2" />
-                        {t.contactExpert}
+                        {t.askQuestion}
                       </Button>
                       
                       <Button 
@@ -309,6 +331,7 @@ const QuickViewModal = ({ isOpen, onClose, product, language }) => {
                     
                     {/* Wishlist Button */}
                     <Button
+                      onClick={handleAddToWishlist}
                       variant="ghost"
                       className="w-full py-3 text-gray-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors mobile-touch-target"
                     >
@@ -336,3 +359,4 @@ const QuickViewModal = ({ isOpen, onClose, product, language }) => {
 };
 
 export default QuickViewModal;
+
