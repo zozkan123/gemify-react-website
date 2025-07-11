@@ -72,8 +72,8 @@ const Header = ({ theme, toggleTheme, language, setLanguage }) => {
               alt="Gemify & Co." 
               className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
             />
-            <span className="font-playfair text-2xl font-bold text-primary-gold hidden sm:block">
-              Gemify & Co.
+            <span className="font-playfair text-2xl font-bold text-primary-gold hidden sm:block logo-text-enhanced">
+              Gemify <span className="ampersand-styled">&</span> Co.
             </span>
           </Link>
 
