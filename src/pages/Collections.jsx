@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Heart, Eye, Search, Filter, Star } from 'lucide-react';
 import { useModal } from '../contexts/ModalContext';
-import InquireModal from '../components/InquireModal';
+import ContactFormModal from '../components/ContactFormModal';
 import QuickViewModal from '../components/QuickViewModal';
 import sapphire1 from '../assets/sapphire1.jpg';
 import sapphire2 from '../assets/sapphire2.jpg';
@@ -320,8 +320,11 @@ const Collections = ({ language }) => {
     setShowFavorites(false);
   };
 
-  const openInquireModal = (gem) => {
-    openModal('inquire', { product: gem, language });
+  const openWhatsAppInquiry = (gem) => {
+    const phoneNumber = '94742068566'; // WhatsApp number from the website
+    const message = `Hello! I'm interested in the ${gem.name} (${gem.price}). Could you please provide more information about this gemstone?`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   const openQuickView = (gem) => {
@@ -539,7 +542,7 @@ const Collections = ({ language }) => {
                           <Button 
                             size="sm" 
                             className="w-full bg-primary-gold hover:bg-yellow-600 text-white gemstone-sparkle text-xs sm:text-sm min-h-8 sm:min-h-9"
-                            onClick={() => openInquireModal(gem)}
+                            onClick={() => openWhatsAppInquiry(gem)}
                           >
                             {t.viewDetails}
                           </Button>
