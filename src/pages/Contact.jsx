@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Calendar } from 'lucide-react';
 
 const Contact = ({ language }) => {
   const [formData, setFormData] = useState({
@@ -192,7 +192,10 @@ const Contact = ({ language }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          timestamp: new Date().toISOString()
+        }),
       });
 
       if (response.ok) {
@@ -200,11 +203,17 @@ const Contact = ({ language }) => {
       } else {
         const errorData = await response.json();
         console.error('Error sending message:', errorData.error);
-        // You could set an error state here to show to the user
+        // Fallback to email client if API fails
+        const subject = encodeURIComponent(formData.subject);
+        const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`);
+        window.open(`mailto:info@gemifyandco.com?subject=${subject}&body=${body}`);
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      // You could set an error state here to show to the user
+      // Fallback to email client if API fails
+      const subject = encodeURIComponent(formData.subject);
+      const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`);
+      window.open(`mailto:info@gemifyandco.com?subject=${subject}&body=${body}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -240,12 +249,20 @@ const Contact = ({ language }) => {
 
   const contactMethods = [
     {
+      icon: Mail,
+      label: t.emailLabel,
+      value: 'info@gemifyandco.com',
+      action: () => window.open('mailto:info@gemifyandco.com'),
+      buttonText: t.emailContact,
+      buttonClass: "contact-button-enhanced email-button-glow"
+    },
+    {
       icon: Phone,
       label: t.phoneLabel,
       value: '+94 74 206 8566',
       action: () => window.open("https://wa.me/94742068566"),
       buttonText: t.whatsappContact,
-      buttonClass: "contact-button-enhanced email-button-glow"
+      buttonClass: "contact-button-enhanced whatsapp-button-enhanced"
     },
     {
       icon: MapPin,
@@ -423,7 +440,7 @@ const Contact = ({ language }) => {
 
               <div className="space-y-6">
                 {contactMethods.map((method, index) => (
-                  <Card key={index} className="p-6 text-center contact-method-card contact-info-card">
+                  <Card key={index} className="contact-method-card contact-info-card">
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
                         <div className="w-12 h-12 bg-primary-gold rounded-full flex items-center justify-center contact-icon-enhanced contact-method-icon">
@@ -439,7 +456,7 @@ const Contact = ({ language }) => {
                               variant="outline" 
                               size="sm"
                               onClick={method.action}
-                              className={`border-primary-gold text-primary-gold hover:bg-primary-gold hover:text-white whatsapp-button-enhanced ${method.buttonClass}`}
+                              className={`border-primary-gold text-primary-gold hover:bg-primary-gold hover:text-white ${method.buttonClass}`}
                             >
                               {method.buttonText}
                             </Button>
@@ -449,25 +466,32 @@ const Contact = ({ language }) => {
                     </CardContent>
                   </Card>
                 ))}
-              </div>
 
-              {/* Schedule Consultation */}
-              <Card className="bg-muted/50">
-                <CardContent className="p-6">
-                  <h3 className="font-playfair text-xl font-semibold mb-3">
-                    {t.scheduleConsultation}
-                  </h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    {t.consultationDesc}
-                  </p>
-                  <Button 
-                    className="bg-primary-gold hover:bg-yellow-600 text-white"
-                    onClick={() => window.open('https://wa.me/94742068566?text=I would like to schedule a consultation')}
-                  >
-                    {t.scheduleConsultation}
-                  </Button>
-                </CardContent>
-              </Card>
+                {/* Schedule Consultation - Now matches other cards */}
+                <Card className="contact-method-card contact-info-card">
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-primary-gold rounded-full flex items-center justify-center contact-icon-enhanced contact-method-icon">
+                        <Calendar className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold mb-1">{t.scheduleConsultation}</h3>
+                        <p className="text-muted-foreground text-sm mb-3">
+                          {t.consultationDesc}
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open('https://wa.me/94742068566?text=I would like to schedule a consultation')}
+                          className="border-primary-gold text-primary-gold hover:bg-primary-gold hover:text-white contact-button-enhanced"
+                        >
+                          {t.scheduleConsultation}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </motion.div>
           </div>
         </div>
