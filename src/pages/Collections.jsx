@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Heart, Eye, Search, Filter, Star } from 'lucide-react';
 import { useModal } from '../contexts/ModalContext';
-import ContactFormModal from '../components/ContactFormModal';
 import QuickViewModal from '../components/QuickViewModal';
 import sapphire1 from '../assets/sapphire1.jpg';
 import sapphire2 from '../assets/sapphire2.jpg';
