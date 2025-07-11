@@ -254,8 +254,11 @@ const Home = ({ language }) => {
     });
   };
 
-  const openInquireModal = (product) => {
-    openModal('contactForm', { product, language });
+  const openWhatsAppInquiry = (product) => {
+    const phoneNumber = '94742068566'; // WhatsApp number from the website
+    const message = `Hello! I'm interested in the ${product.name} (${product.price}). Could you please provide more information about this gemstone?`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   const openQuickView = (product) => {
@@ -439,7 +442,7 @@ const Home = ({ language }) => {
                       <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3">
                         <Button 
                           className="w-full bg-primary-gold hover:bg-yellow-600 text-white gemstone-sparkle text-sm sm:text-base min-h-11 sm:min-h-12 font-medium transition-all duration-300 hover:scale-105"
-                          onClick={() => openInquireModal(product)}
+                          onClick={() => openWhatsAppInquiry(product)}
                         >
                           {t.inquire}
                         </Button>
@@ -547,3 +550,4 @@ const Home = ({ language }) => {
 };
 
 export default Home;
+
