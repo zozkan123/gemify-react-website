@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Calendar } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Calendar, MessageCircle, AlertCircle } from 'lucide-react';
 
 const Contact = ({ language }) => {
   const [formData, setFormData] = useState({
@@ -13,10 +14,13 @@ const Contact = ({ language }) => {
     email: '',
     phone: '',
     subject: '',
-    message: ''
+    inquiryType: '',
+    message: '',
+    newsletter: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [errors, setErrors] = useState({});
 
   const translations = {
@@ -26,10 +30,11 @@ const Contact = ({ language }) => {
       getInTouch: 'Get In Touch',
       getInTouchDesc: 'Have questions about our gemstones or need expert advice? We\'re here to help.',
       contactForm: 'Contact Form',
-      name: 'Name',
-      email: 'Email',
-      phone: 'Phone (Optional)',
+      name: 'Full Name',
+      email: 'Email Address',
+      phone: 'Phone Number (Optional)',
       subject: 'Subject',
+      inquiryType: 'Inquiry Type',
       message: 'Message',
       sendMessage: 'Send Message',
       sending: 'Sending...',
@@ -41,16 +46,26 @@ const Contact = ({ language }) => {
       appointmentOnly: 'By Appointment Only',
       businessHours: 'Monday - Saturday\n9:00 AM - 6:00 PM (Sri Lanka Time)',
       successMessage: 'Thank you for your message! We\'ll get back to you within 24 hours.',
+      errorMessage: 'Failed to send message. Please try again or contact us directly.',
       sendAnother: 'Send Another Message',
       nameRequired: 'Name is required',
       emailRequired: 'Email is required',
       emailInvalid: 'Please enter a valid email address',
       subjectRequired: 'Subject is required',
+      inquiryTypeRequired: 'Please select an inquiry type',
       messageRequired: 'Message is required',
       whatsappContact: 'Contact via WhatsApp',
       emailContact: 'Send Email',
       scheduleConsultation: 'Schedule Consultation',
-      consultationDesc: 'Book a private consultation with our gemstone experts to discuss your specific needs and preferences.'
+      consultationDesc: 'Book a private consultation with our gemstone experts to discuss your specific needs and preferences.',
+      inquiryTypes: {
+        general: 'General Information',
+        purchase: 'Purchase Inquiry',
+        appraisal: 'Gemstone Appraisal',
+        custom: 'Custom Jewelry Design',
+        consultation: 'Private Consultation'
+      },
+      newsletterOptIn: 'Subscribe to our newsletter for exclusive offers and gemstone insights'
     },
     es: {
       pageTitle: 'Contáctanos',
@@ -58,10 +73,11 @@ const Contact = ({ language }) => {
       getInTouch: 'Ponte en Contacto',
       getInTouchDesc: '¿Tienes preguntas sobre nuestras gemas o necesitas asesoramiento experto? Estamos aquí para ayudar.',
       contactForm: 'Formulario de Contacto',
-      name: 'Nombre',
+      name: 'Nombre Completo',
       email: 'Correo Electrónico',
-      phone: 'Teléfono (Opcional)',
+      phone: 'Número de Teléfono (Opcional)',
       subject: 'Asunto',
+      inquiryType: 'Tipo de Consulta',
       message: 'Mensaje',
       sendMessage: 'Enviar Mensaje',
       sending: 'Enviando...',
@@ -73,16 +89,26 @@ const Contact = ({ language }) => {
       appointmentOnly: 'Solo con Cita Previa',
       businessHours: 'Lunes - Sábado\n9:00 AM - 6:00 PM (Hora de Sri Lanka)',
       successMessage: '¡Gracias por tu mensaje! Te responderemos en 24 horas.',
+      errorMessage: 'Error al enviar mensaje. Por favor intenta de nuevo o contáctanos directamente.',
       sendAnother: 'Enviar Otro Mensaje',
       nameRequired: 'El nombre es obligatorio',
       emailRequired: 'El correo electrónico es obligatorio',
       emailInvalid: 'Por favor ingresa un correo electrónico válido',
       subjectRequired: 'El asunto es obligatorio',
+      inquiryTypeRequired: 'Por favor selecciona un tipo de consulta',
       messageRequired: 'El mensaje es obligatorio',
       whatsappContact: 'Contactar por WhatsApp',
       emailContact: 'Enviar Correo',
       scheduleConsultation: 'Programar Consulta',
-      consultationDesc: 'Reserva una consulta privada con nuestros expertos en gemas para discutir tus necesidades y preferencias específicas.'
+      consultationDesc: 'Reserva una consulta privada con nuestros expertos en gemas para discutir tus necesidades y preferencias específicas.',
+      inquiryTypes: {
+        general: 'Información General',
+        purchase: 'Consulta de Compra',
+        appraisal: 'Evaluación de Gemas',
+        custom: 'Diseño de Joyería Personalizada',
+        consultation: 'Consulta Privada'
+      },
+      newsletterOptIn: 'Suscríbete a nuestro boletín para ofertas exclusivas e información sobre gemas'
     },
     fr: {
       pageTitle: 'Contactez-nous',
@@ -90,10 +116,11 @@ const Contact = ({ language }) => {
       getInTouch: 'Entrez en Contact',
       getInTouchDesc: 'Vous avez des questions sur nos gemmes ou besoin de conseils d\'experts ? Nous sommes là pour vous aider.',
       contactForm: 'Formulaire de Contact',
-      name: 'Nom',
-      email: 'Email',
-      phone: 'Téléphone (Optionnel)',
+      name: 'Nom Complet',
+      email: 'Adresse Email',
+      phone: 'Numéro de Téléphone (Optionnel)',
       subject: 'Sujet',
+      inquiryType: 'Type de Demande',
       message: 'Message',
       sendMessage: 'Envoyer le Message',
       sending: 'Envoi en cours...',
@@ -105,16 +132,26 @@ const Contact = ({ language }) => {
       appointmentOnly: 'Sur Rendez-vous Uniquement',
       businessHours: 'Lundi - Samedi\n9:00 AM - 6:00 PM (Heure du Sri Lanka)',
       successMessage: 'Merci pour votre message ! Nous vous répondrons dans les 24 heures.',
+      errorMessage: 'Échec de l\'envoi du message. Veuillez réessayer ou nous contacter directement.',
       sendAnother: 'Envoyer un Autre Message',
       nameRequired: 'Le nom est requis',
       emailRequired: 'L\'email est requis',
       emailInvalid: 'Veuillez entrer une adresse email valide',
       subjectRequired: 'Le sujet est requis',
+      inquiryTypeRequired: 'Veuillez sélectionner un type de demande',
       messageRequired: 'Le message est requis',
       whatsappContact: 'Contacter via WhatsApp',
       emailContact: 'Envoyer un Email',
       scheduleConsultation: 'Programmer une Consultation',
-      consultationDesc: 'Réservez une consultation privée avec nos experts en gemmes pour discuter de vos besoins et préférences spécifiques.'
+      consultationDesc: 'Réservez une consultation privée avec nos experts en gemmes pour discuter de vos besoins et préférences spécifiques.',
+      inquiryTypes: {
+        general: 'Informations Générales',
+        purchase: 'Demande d\'Achat',
+        appraisal: 'Évaluation de Gemmes',
+        custom: 'Conception de Bijoux Personnalisés',
+        consultation: 'Consultation Privée'
+      },
+      newsletterOptIn: 'Abonnez-vous à notre newsletter pour des offres exclusives et des informations sur les gemmes'
     },
     ar: {
       pageTitle: 'اتصل بنا',
@@ -122,10 +159,11 @@ const Contact = ({ language }) => {
       getInTouch: 'تواصل معنا',
       getInTouchDesc: 'هل لديك أسئلة حول أحجارنا الكريمة أو تحتاج إلى نصيحة خبير؟ نحن هنا للمساعدة.',
       contactForm: 'نموذج الاتصال',
-      name: 'الاسم',
-      email: 'البريد الإلكتروني',
-      phone: 'الهاتف (اختياري)',
+      name: 'الاسم الكامل',
+      email: 'عنوان البريد الإلكتروني',
+      phone: 'رقم الهاتف (اختياري)',
       subject: 'الموضوع',
+      inquiryType: 'نوع الاستفسار',
       message: 'الرسالة',
       sendMessage: 'إرسال الرسالة',
       sending: 'جاري الإرسال...',
@@ -137,16 +175,26 @@ const Contact = ({ language }) => {
       appointmentOnly: 'بموعد مسبق فقط',
       businessHours: 'الاثنين - السبت\n9:00 صباحاً - 6:00 مساءً (توقيت سريلانكا)',
       successMessage: 'شكراً لك على رسالتك! سنرد عليك خلال 24 ساعة.',
+      errorMessage: 'فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى أو الاتصال بنا مباشرة.',
       sendAnother: 'إرسال رسالة أخرى',
       nameRequired: 'الاسم مطلوب',
       emailRequired: 'البريد الإلكتروني مطلوب',
       emailInvalid: 'يرجى إدخال عنوان بريد إلكتروني صحيح',
       subjectRequired: 'الموضوع مطلوب',
+      inquiryTypeRequired: 'يرجى اختيار نوع الاستفسار',
       messageRequired: 'الرسالة مطلوبة',
       whatsappContact: 'التواصل عبر واتساب',
       emailContact: 'إرسال بريد إلكتروني',
       scheduleConsultation: 'جدولة استشارة',
-      consultationDesc: 'احجز استشارة خاصة مع خبراء الأحجار الكريمة لدينا لمناقشة احتياجاتك وتفضيلاتك المحددة.'
+      consultationDesc: 'احجز استشارة خاصة مع خبراء الأحجار الكريمة لدينا لمناقشة احتياجاتك وتفضيلاتك المحددة.',
+      inquiryTypes: {
+        general: 'معلومات عامة',
+        purchase: 'استفسار شراء',
+        appraisal: 'تقييم الأحجار الكريمة',
+        custom: 'تصميم مجوهرات مخصصة',
+        consultation: 'استشارة خاصة'
+      },
+      newsletterOptIn: 'اشترك في نشرتنا الإخبارية للحصول على عروض حصرية ومعلومات عن الأحجار الكريمة'
     }
   };
 
@@ -169,6 +217,10 @@ const Contact = ({ language }) => {
       newErrors.subject = t.subjectRequired;
     }
 
+    if (!formData.inquiryType) {
+      newErrors.inquiryType = t.inquiryTypeRequired;
+    }
+
     if (!formData.message.trim()) {
       newErrors.message = t.messageRequired;
     }
@@ -185,45 +237,64 @@ const Contact = ({ language }) => {
     }
 
     setIsSubmitting(true);
+    setSubmitError('');
     
     try {
-      const response = await fetch('/api/contact', {
+      // Enhanced form data with timestamp and additional details
+      const submissionData = {
+        ...formData,
+        timestamp: new Date().toISOString(),
+        language: language,
+        userAgent: navigator.userAgent,
+        referrer: document.referrer || 'Direct'
+      };
+
+      const response = await fetch('https://gemify-backend-kevj.onrender.com/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          timestamp: new Date().toISOString()
-        }),
+        body: JSON.stringify(submissionData),
       });
 
       if (response.ok) {
         setIsSubmitted(true);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          inquiryType: '',
+          message: '',
+          newsletter: false
+        });
       } else {
         const errorData = await response.json();
         console.error('Error sending message:', errorData.error);
-        // Fallback to email client if API fails
-        const subject = encodeURIComponent(formData.subject);
-        const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`);
-        window.open(`mailto:info@gemifyandco.com?subject=${subject}&body=${body}`);
+        throw new Error(errorData.error || 'Failed to send message');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      // Fallback to email client if API fails
-      const subject = encodeURIComponent(formData.subject);
-      const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\nMessage:\n${formData.message}`);
-      window.open(`mailto:info@gemifyandco.com?subject=${subject}&body=${body}`);
+      setSubmitError(t.errorMessage);
+      
+      // Fallback to mailto as backup
+      const subject = encodeURIComponent(`[${formData.inquiryType}] ${formData.subject}`);
+      const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nInquiry Type: ${formData.inquiryType}\n\nMessage:\n${formData.message}\n\nSubmitted: ${new Date().toLocaleString()}`);
+      const mailtoUrl = `mailto:info@gemifyandco.com?subject=${subject}&body=${body}`;
+      
+      setTimeout(() => {
+        window.open(mailtoUrl, '_blank');
+      }, 2000);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
     
     // Clear error when user starts typing
@@ -241,18 +312,26 @@ const Contact = ({ language }) => {
       email: '',
       phone: '',
       subject: '',
-      message: ''
+      inquiryType: '',
+      message: '',
+      newsletter: false
     });
     setIsSubmitted(false);
+    setSubmitError('');
     setErrors({});
   };
 
+  // Enhanced contact methods with proper email links
   const contactMethods = [
     {
       icon: Mail,
       label: t.emailLabel,
       value: 'info@gemifyandco.com',
-      action: () => window.open('mailto:info@gemifyandco.com'),
+      action: () => {
+        const subject = encodeURIComponent('Gemstone Inquiry - Gemify & Co.');
+        const body = encodeURIComponent('Hello,\n\nI am interested in learning more about your gemstone collection.\n\nBest regards,');
+        window.open(`mailto:info@gemifyandco.com?subject=${subject}&body=${body}`, '_blank');
+      },
       buttonText: t.emailContact,
       buttonClass: "contact-button-enhanced email-button-glow"
     },
@@ -260,7 +339,10 @@ const Contact = ({ language }) => {
       icon: Phone,
       label: t.phoneLabel,
       value: '+94 74 206 8566',
-      action: () => window.open("https://wa.me/94742068566"),
+      action: () => {
+        const message = encodeURIComponent('Hello! I\'m interested in your luxury gemstone collection and would like to inquire about your services.');
+        window.open(`https://wa.me/94742068566?text=${message}`, '_blank');
+      },
       buttonText: t.whatsappContact,
       buttonClass: "contact-button-enhanced whatsapp-button-enhanced"
     },
@@ -282,6 +364,70 @@ const Contact = ({ language }) => {
 
   return (
     <div className="min-h-screen bg-background page-transition">
+      {/* Add enhanced styling */}
+      <style jsx>{`
+        .contact-button-enhanced {
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .contact-button-enhanced:hover {
+          transform: translateY(-2px);
+        }
+        
+        .email-button-glow:hover {
+          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .whatsapp-button-enhanced {
+          background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+          color: white;
+          border: none;
+        }
+        
+        .whatsapp-button-enhanced:hover {
+          background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
+          color: white;
+          box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+        
+        .contact-info-card {
+          transition: all 0.3s ease;
+          background: linear-gradient(135deg, #ffffff 0%, #fdfcf8 100%);
+          border: 1px solid rgba(184, 134, 11, 0.1);
+        }
+        
+        .contact-info-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          border-color: rgba(184, 134, 11, 0.2);
+        }
+        
+        .contact-method-icon {
+          transition: all 0.3s ease;
+        }
+        
+        .contact-info-card:hover .contact-method-icon {
+          transform: scale(1.1);
+        }
+        
+        .form-input-enhanced {
+          transition: all 0.3s ease;
+          border: 2px solid #e5e7eb;
+        }
+        
+        .form-input-enhanced:focus {
+          border-color: #B8860B;
+          box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
+        }
+        
+        .form-input-enhanced.error {
+          border-color: #ef4444;
+          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+      `}</style>
+
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-r from-primary-gold to-yellow-600 text-white">
         <div className="container mx-auto px-4 text-center">
@@ -314,7 +460,7 @@ const Contact = ({ language }) => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <Card>
+              <Card className="contact-info-card">
                 <CardHeader>
                   <CardTitle className="font-playfair text-2xl">
                     {isSubmitted ? t.successMessage : t.contactForm}
@@ -341,10 +487,14 @@ const Contact = ({ language }) => {
                             name="name"
                             value={formData.name}
                             onChange={handleInputChange}
-                            className={`form-input-enhanced ${errors.name ? 'border-red-500' : ''}`}
+                            className={`form-input-enhanced ${errors.name ? 'error' : ''}`}
+                            placeholder="Enter your full name"
                           />
                           {errors.name && (
-                            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                            <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3" />
+                              {errors.name}
+                            </p>
                           )}
                         </div>
                         <div>
@@ -355,10 +505,14 @@ const Contact = ({ language }) => {
                             type="email"
                             value={formData.email}
                             onChange={handleInputChange}
-                            className={errors.email ? 'border-red-500' : ''}
+                            className={`form-input-enhanced ${errors.email ? 'error' : ''}`}
+                            placeholder="your@email.com"
                           />
                           {errors.email && (
-                            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                            <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3" />
+                              {errors.email}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -371,7 +525,31 @@ const Contact = ({ language }) => {
                           type="tel"
                           value={formData.phone}
                           onChange={handleInputChange}
+                          className="form-input-enhanced"
+                          placeholder="+1 (555) 123-4567"
                         />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="inquiryType">{t.inquiryType} *</Label>
+                        <Select value={formData.inquiryType} onValueChange={(value) => setFormData(prev => ({ ...prev, inquiryType: value }))}>
+                          <SelectTrigger className={`form-input-enhanced ${errors.inquiryType ? 'error' : ''}`}>
+                            <SelectValue placeholder="Select inquiry type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="general">{t.inquiryTypes.general}</SelectItem>
+                            <SelectItem value="purchase">{t.inquiryTypes.purchase}</SelectItem>
+                            <SelectItem value="appraisal">{t.inquiryTypes.appraisal}</SelectItem>
+                            <SelectItem value="custom">{t.inquiryTypes.custom}</SelectItem>
+                            <SelectItem value="consultation">{t.inquiryTypes.consultation}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.inquiryType && (
+                          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" />
+                            {errors.inquiryType}
+                          </p>
+                        )}
                       </div>
 
                       <div>
@@ -381,10 +559,14 @@ const Contact = ({ language }) => {
                           name="subject"
                           value={formData.subject}
                           onChange={handleInputChange}
-                          className={errors.subject ? 'border-red-500' : ''}
+                          className={`form-input-enhanced ${errors.subject ? 'error' : ''}`}
+                          placeholder="Brief description of your inquiry"
                         />
                         {errors.subject && (
-                          <p className="text-red-500 text-sm mt-1">{errors.subject}</p>
+                          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" />
+                            {errors.subject}
+                          </p>
                         )}
                       </div>
 
@@ -396,12 +578,39 @@ const Contact = ({ language }) => {
                           rows={5}
                           value={formData.message}
                           onChange={handleInputChange}
-                          className={errors.message ? 'border-red-500' : ''}
+                          className={`form-input-enhanced ${errors.message ? 'error' : ''}`}
+                          placeholder="Please provide details about your gemstone interests, budget, or specific requirements..."
                         />
                         {errors.message && (
-                          <p className="text-red-500 text-sm mt-1">{errors.message}</p>
+                          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" />
+                            {errors.message}
+                          </p>
                         )}
                       </div>
+
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="newsletter"
+                          name="newsletter"
+                          checked={formData.newsletter}
+                          onChange={handleInputChange}
+                          className="rounded border-gray-300 text-primary-gold focus:ring-primary-gold"
+                        />
+                        <Label htmlFor="newsletter" className="text-sm text-muted-foreground">
+                          {t.newsletterOptIn}
+                        </Label>
+                      </div>
+
+                      {submitError && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-red-700 text-sm flex items-center gap-2">
+                            <AlertCircle className="h-4 w-4" />
+                            {submitError}
+                          </p>
+                        </div>
+                      )}
 
                       <Button 
                         type="submit" 
@@ -440,10 +649,10 @@ const Contact = ({ language }) => {
 
               <div className="space-y-6">
                 {contactMethods.map((method, index) => (
-                  <Card key={index} className="contact-method-card contact-info-card">
+                  <Card key={index} className="contact-info-card">
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 bg-primary-gold rounded-full flex items-center justify-center contact-icon-enhanced contact-method-icon">
+                        <div className="w-12 h-12 bg-primary-gold rounded-full flex items-center justify-center contact-method-icon">
                           <method.icon className="h-6 w-6 text-white" />
                         </div>
                         <div className="flex-1">
@@ -467,11 +676,11 @@ const Contact = ({ language }) => {
                   </Card>
                 ))}
 
-                {/* Schedule Consultation - Now matches other cards */}
-                <Card className="contact-method-card contact-info-card">
+                {/* Schedule Consultation - Fixed to match other cards */}
+                <Card className="contact-info-card">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-primary-gold rounded-full flex items-center justify-center contact-icon-enhanced contact-method-icon">
+                      <div className="w-12 h-12 bg-primary-gold rounded-full flex items-center justify-center contact-method-icon">
                         <Calendar className="h-6 w-6 text-white" />
                       </div>
                       <div className="flex-1">
@@ -482,9 +691,13 @@ const Contact = ({ language }) => {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => window.open('https://wa.me/94742068566?text=I would like to schedule a consultation')}
+                          onClick={() => {
+                            const message = encodeURIComponent('Hello! I would like to schedule a private consultation with your gemstone experts to discuss my specific needs and preferences.');
+                            window.open(`https://wa.me/94742068566?text=${message}`, '_blank');
+                          }}
                           className="border-primary-gold text-primary-gold hover:bg-primary-gold hover:text-white contact-button-enhanced"
                         >
+                          <MessageCircle className="h-4 w-4 mr-2" />
                           {t.scheduleConsultation}
                         </Button>
                       </div>
@@ -501,4 +714,3 @@ const Contact = ({ language }) => {
 };
 
 export default Contact;
-
