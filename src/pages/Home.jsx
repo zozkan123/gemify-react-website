@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Heart, Eye, Award, Users, Globe, TrendingUp } from 'lucide-react';
+import { Star, Heart, Eye, Award, Users, Globe, TrendingUp, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useModal } from '../contexts/ModalContext';
 import sapphire1 from '../assets/sapphire1.jpg';
@@ -24,6 +24,15 @@ const Home = ({ language }) => {
 
   const { openModal } = useModal();
 
+  // Save favorites to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('gemify_favorites', JSON.stringify(Array.from(likedProducts)));
+    } catch (error) {
+      console.warn('Failed to save favorites to localStorage:', error);
+    }
+  }, [likedProducts]);
+
   const translations = {
     en: {
       heroTitle: 'Every Gem Tells A Story, Let Yours Shine',
@@ -40,6 +49,7 @@ const Home = ({ language }) => {
       inquire: 'Inquire',
       quickView: 'Quick View',
       addToWishlist: 'Add to Wishlist',
+      removeFromWishlist: 'Remove from Wishlist',
       whyChoose: 'Why Choose Gemify & Co.',
       whyChooseSubtitle: 'Excellence in every aspect of our service and products',
       certifiedAuthentic: 'Certified Authentic',
@@ -71,6 +81,7 @@ const Home = ({ language }) => {
       inquire: 'Consultar',
       quickView: 'Vista Rápida',
       addToWishlist: 'Agregar a Favoritos',
+      removeFromWishlist: 'Quitar de Favoritos',
       whyChoose: 'Por Qué Elegir Gemify & Co.',
       whyChooseSubtitle: 'Excelencia en todos los aspectos de nuestro servicio y productos',
       certifiedAuthentic: 'Certificado Auténtico',
@@ -102,6 +113,7 @@ const Home = ({ language }) => {
       inquire: 'Se Renseigner',
       quickView: 'Aperçu Rapide',
       addToWishlist: 'Ajouter aux Favoris',
+      removeFromWishlist: 'Retirer des Favoris',
       whyChoose: 'Pourquoi Choisir Gemify & Co.',
       whyChooseSubtitle: 'Excellence dans tous les aspects de notre service et de nos produits',
       certifiedAuthentic: 'Certifié Authentique',
@@ -133,6 +145,7 @@ const Home = ({ language }) => {
       inquire: 'استفسار',
       quickView: 'عرض سريع',
       addToWishlist: 'أضف إلى المفضلة',
+      removeFromWishlist: 'إزالة من المفضلة',
       whyChoose: 'لماذا تختار Gemify & Co.',
       whyChooseSubtitle: 'التميز في كل جانب من جوانب خدمتنا ومنتجاتنا',
       certifiedAuthentic: 'معتمد أصلي',
@@ -153,6 +166,7 @@ const Home = ({ language }) => {
 
   const t = translations[language] || translations.en;
 
+  // Fixed featured products data with correct images
   const featuredProducts = [
     {
       id: 1,
@@ -182,8 +196,8 @@ const Home = ({ language }) => {
       id: 2,
       name: t.burmesesRubies,
       price: '$2,000+',
-      images: [ruby1, ruby2],
-      image: ruby1,
+      images: [ruby1, ruby2], // Fixed: now using correct ruby images
+      image: ruby1, // Fixed: now using ruby1 instead of sapphire
       description: t.rubyDesc,
       badge: 'Exclusive',
       category: 'Ruby',
@@ -242,21 +256,14 @@ const Home = ({ language }) => {
       } else {
         newSet.add(productId);
       }
-      
-      // Save to localStorage
-      try {
-        localStorage.setItem('gemify_favorites', JSON.stringify(Array.from(newSet)));
-      } catch (error) {
-        console.warn('Failed to save favorites to localStorage:', error);
-      }
-      
       return newSet;
     });
   };
 
+  // WhatsApp integration
   const openWhatsAppInquiry = (product) => {
-    const phoneNumber = '94742068566'; // WhatsApp number from the website
-    const message = `Hello! I'm interested in the ${product.name} (${product.price}). Could you please provide more information about this gemstone?`;
+    const phoneNumber = '94742068566';
+    const message = `Hello! I'm interested in ${product.name} (${product.price}). Could you please provide more information about this gemstone?\n\nProduct Details:\n- Category: ${product.category}\n- Origin: ${product.origin}\n- Weight: ${product.carat} carats\n\nI would like to know more about availability, certification, and viewing arrangements.`;
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -267,6 +274,42 @@ const Home = ({ language }) => {
 
   return (
     <div className="min-h-screen">
+      {/* Add WhatsApp Button Styling */}
+      <style jsx>{`
+        .whatsapp-button {
+          background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+          color: white;
+          border: none;
+          border-radius: 25px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+        
+        .whatsapp-button:hover {
+          background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+        
+        .favorites-heart {
+          transition: all 0.3s ease;
+        }
+        
+        .favorites-heart:hover {
+          transform: scale(1.1);
+        }
+        
+        .favorites-heart.liked {
+          color: #B8860B;
+          fill: #B8860B;
+        }
+      `}</style>
+
       {/* Hero Section - Fully Mobile Responsive */}
       <section 
         className="relative min-h-screen flex items-center justify-center text-white overflow-hidden"
@@ -384,9 +427,9 @@ const Home = ({ language }) => {
                         onClick={() => toggleWishlist(product.id)}
                       >
                         <Heart 
-                          className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-300 ${
+                          className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-300 favorites-heart ${
                             likedProducts.has(product.id) 
-                              ? 'fill-red-500 text-red-500' 
+                              ? 'liked' 
                               : 'text-gray-600'
                           }`} 
                         />
@@ -441,9 +484,10 @@ const Home = ({ language }) => {
                       
                       <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-3">
                         <Button 
-                          className="w-full bg-primary-gold hover:bg-yellow-600 text-white gemstone-sparkle text-sm sm:text-base min-h-11 sm:min-h-12 font-medium transition-all duration-300 hover:scale-105"
+                          className="w-full whatsapp-button text-sm sm:text-base min-h-11 sm:min-h-12 font-medium transition-all duration-300 hover:scale-105"
                           onClick={() => openWhatsAppInquiry(product)}
                         >
+                          <MessageSquare className="h-4 w-4 mr-2" />
                           {t.inquire}
                         </Button>
                         <Button 
@@ -451,6 +495,7 @@ const Home = ({ language }) => {
                           className="w-full text-sm sm:text-base min-h-11 sm:min-h-12 font-medium transition-all duration-300 hover:scale-105 border-2"
                           onClick={() => openQuickView(product)}
                         >
+                          <Eye className="h-4 w-4 mr-2" />
                           {t.quickView}
                         </Button>
                       </div>
@@ -550,4 +595,3 @@ const Home = ({ language }) => {
 };
 
 export default Home;
-
