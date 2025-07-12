@@ -1,2 +1,2 @@
 [build.environment]
-  PNPM_VERSION = "10.12.4"
+  PNPM_VERSION = "10.4.1"
