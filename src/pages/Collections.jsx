@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Eye, Search, Filter, Star } from 'lucide-react';
+import { Heart, Eye, Search, Filter, Star, MessageSquare } from 'lucide-react';
 import { useModal } from '../contexts/ModalContext';
 import QuickViewModal from '../components/QuickViewModal';
 import sapphire1 from '../assets/sapphire1.jpg';
@@ -20,18 +20,21 @@ const Collections = ({ language }) => {
   const [filterType, setFilterType] = useState('all');
   const [filterOrigin, setFilterOrigin] = useState('all');
   const [showFavorites, setShowFavorites] = useState(false);
+  
+  // Enhanced favorites state management
   const [likedProducts, setLikedProducts] = useState(() => {
     try {
       const savedFavorites = localStorage.getItem('gemify_favorites');
       return savedFavorites ? new Set(JSON.parse(savedFavorites)) : new Set();
     } catch (error) {
+      console.warn('Failed to load favorites from localStorage:', error);
       return new Set();
     }
   });
 
-  // Use modal system for consistent functionality
   const { openModal } = useModal();
 
+  // Save favorites to localStorage whenever it changes
   useEffect(() => {
     try {
       localStorage.setItem('gemify_favorites', JSON.stringify(Array.from(likedProducts)));
@@ -62,18 +65,21 @@ const Collections = ({ language }) => {
       sriLanka: 'Sri Lanka',
       madagascar: 'Madagascar',
       colombia: 'Colombia',
-      viewDetails: 'Inquire',
+      inquire: 'Inquire',
       quickView: 'Quick View',
       addToWishlist: 'Add to Wishlist',
       removeFromWishlist: 'Remove from Wishlist',
       noResults: 'No gemstones found matching your criteria.',
+      noFavorites: 'No favorites added yet. Add gemstones to your favorites by clicking the heart icon.',
       clearFilters: 'Clear Filters',
       premium: 'Premium',
       exclusive: 'Exclusive',
       rare: 'Rare',
       certified: 'Certified',
       favorites: 'Favorites',
-      showAll: 'Show All'
+      showAll: 'Show All',
+      showingFavorites: 'Showing Favorites',
+      favoriteCount: 'favorite(s)'
     },
     es: {
       pageTitle: 'Nuestras Colecciones',
@@ -96,18 +102,21 @@ const Collections = ({ language }) => {
       sriLanka: 'Sri Lanka',
       madagascar: 'Madagascar',
       colombia: 'Colombia',
-      viewDetails: 'Consultar',
+      inquire: 'Consultar',
       quickView: 'Vista Rápida',
       addToWishlist: 'Agregar a Favoritos',
       removeFromWishlist: 'Quitar de Favoritos',
       noResults: 'No se encontraron gemas que coincidan con sus criterios.',
+      noFavorites: 'No hay favoritos agregados aún. Agrega gemas a tus favoritos haciendo clic en el ícono del corazón.',
       clearFilters: 'Limpiar Filtros',
       premium: 'Premium',
       exclusive: 'Exclusivo',
       rare: 'Raro',
       certified: 'Certificado',
       favorites: 'Favoritos',
-      showAll: 'Mostrar Todo'
+      showAll: 'Mostrar Todo',
+      showingFavorites: 'Mostrando Favoritos',
+      favoriteCount: 'favorito(s)'
     },
     fr: {
       pageTitle: 'Nos Collections',
@@ -130,18 +139,21 @@ const Collections = ({ language }) => {
       sriLanka: 'Sri Lanka',
       madagascar: 'Madagascar',
       colombia: 'Colombie',
-      viewDetails: 'Se Renseigner',
+      inquire: 'Se Renseigner',
       quickView: 'Aperçu Rapide',
       addToWishlist: 'Ajouter aux Favoris',
       removeFromWishlist: 'Retirer des Favoris',
       noResults: 'Aucune gemme trouvée correspondant à vos critères.',
+      noFavorites: 'Aucun favori ajouté pour le moment. Ajoutez des gemmes à vos favoris en cliquant sur l\'icône cœur.',
       clearFilters: 'Effacer les Filtres',
       premium: 'Premium',
       exclusive: 'Exclusif',
       rare: 'Rare',
       certified: 'Certifié',
       favorites: 'Favoris',
-      showAll: 'Tout Afficher'
+      showAll: 'Tout Afficher',
+      showingFavorites: 'Affichage des Favoris',
+      favoriteCount: 'favori(s)'
     },
     ar: {
       pageTitle: 'مجموعاتنا',
@@ -164,18 +176,21 @@ const Collections = ({ language }) => {
       sriLanka: 'سريلانكا',
       madagascar: 'مدغشقر',
       colombia: 'كولومبيا',
-      viewDetails: 'استفسار',
+      inquire: 'استفسار',
       quickView: 'عرض سريع',
       addToWishlist: 'أضف إلى المفضلة',
       removeFromWishlist: 'إزالة من المفضلة',
       noResults: 'لم يتم العثور على أحجار كريمة تطابق معاييرك.',
+      noFavorites: 'لم تتم إضافة مفضلات بعد. أضف الأحجار الكريمة إلى مفضلاتك بالنقر على رمز القلب.',
       clearFilters: 'مسح المرشحات',
       premium: 'فاخر',
       exclusive: 'حصري',
       rare: 'نادر',
       certified: 'معتمد',
       favorites: 'المفضلة',
-      showAll: 'عرض الكل'
+      showAll: 'عرض الكل',
+      showingFavorites: 'عرض المفضلات',
+      favoriteCount: 'مفضل(ة)'
     }
   };
 
@@ -260,7 +275,7 @@ const Collections = ({ language }) => {
     }
   ];
 
-  // Filter and sort gemstones
+  // Enhanced filter and sort gemstones
   const filteredAndSortedGemstones = useMemo(() => {
     let filtered = gemstones.filter(gem => {
       const matchesSearch = gem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -319,9 +334,10 @@ const Collections = ({ language }) => {
     setShowFavorites(false);
   };
 
+  // WhatsApp integration
   const openWhatsAppInquiry = (gem) => {
-    const phoneNumber = '94742068566'; // WhatsApp number from the website
-    const message = `Hello! I'm interested in the ${gem.name} (${gem.price}). Could you please provide more information about this gemstone?`;
+    const phoneNumber = '94742068566';
+    const message = `Hello! I'm interested in the ${gem.name} (${gem.price}). Could you please provide more information about this gemstone?\n\nProduct Details:\n- Type: ${gem.type}\n- Origin: ${gem.origin}\n- Weight: ${gem.carat} carats\n- Clarity: ${gem.clarity}\n- Cut: ${gem.cut}\n\nI would like to know more about availability, certification, and viewing arrangements.`;
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -330,8 +346,59 @@ const Collections = ({ language }) => {
     openModal('quickView', { product: gem, language });
   };
 
+  const favoriteCount = likedProducts.size;
+
   return (
     <div className="min-h-screen bg-background page-transition">
+      {/* Add custom styling for WhatsApp and favorites */}
+      <style jsx>{`
+        .whatsapp-button {
+          background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .whatsapp-button:hover {
+          background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+        
+        .favorites-heart {
+          transition: all 0.3s ease;
+        }
+        
+        .favorites-heart:hover {
+          transform: scale(1.1);
+        }
+        
+        .favorites-heart.liked {
+          color: #B8860B;
+          fill: #B8860B;
+        }
+        
+        .favorites-toggle {
+          background: linear-gradient(135deg, #B8860B 0%, #D4AF37 100%);
+          transition: all 0.3s ease;
+        }
+        
+        .favorites-toggle:hover {
+          background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
+          transform: translateY(-1px);
+        }
+        
+        .favorites-toggle.active {
+          background: linear-gradient(135deg, #8B0000 0%, #B22222 100%);
+        }
+      `}</style>
+
       {/* Hero Section - Mobile Optimized */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-primary-gold to-yellow-600 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -354,7 +421,7 @@ const Collections = ({ language }) => {
         </div>
       </section>
 
-      {/* Filters and Search - Mobile Optimized */}
+      {/* Filters and Search - Enhanced with Favorites */}
       <section className="py-6 sm:py-8 bg-muted/50 border-b">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-4 lg:space-y-0 lg:flex lg:items-center lg:justify-between lg:gap-4">
@@ -369,7 +436,7 @@ const Collections = ({ language }) => {
               />
             </div>
 
-            {/* Filters - Mobile Optimized */}
+            {/* Filters - Enhanced Layout */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-3 lg:gap-4">
               {/* Sort By */}
               <div className="flex items-center gap-2">
@@ -421,15 +488,18 @@ const Collections = ({ language }) => {
                 </Select>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons with Favorites */}
               <div className="flex gap-2 col-span-1 sm:col-span-2 lg:col-span-1">
                 <Button
                   variant={showFavorites ? 'default' : 'outline'}
                   onClick={() => setShowFavorites(!showFavorites)}
-                  className="flex-1 lg:flex-none flex items-center gap-2 min-h-10"
+                  className={`flex-1 lg:flex-none flex items-center gap-2 min-h-10 favorites-toggle ${showFavorites ? 'active' : ''}`}
                 >
                   <Heart className={`h-4 w-4 ${showFavorites ? 'fill-white' : ''}`} />
-                  <span className="hidden sm:inline">{showFavorites ? t.showAll : t.favorites}</span>
+                  <span className="hidden sm:inline">
+                    {showFavorites ? t.showAll : t.favorites}
+                    {favoriteCount > 0 && !showFavorites && ` (${favoriteCount})`}
+                  </span>
                 </Button>
 
                 <Button 
@@ -443,10 +513,20 @@ const Collections = ({ language }) => {
               </div>
             </div>
           </div>
+
+          {/* Favorites Status */}
+          {showFavorites && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700 flex items-center gap-2">
+                <Heart className="h-4 w-4 fill-amber-600 text-amber-600" />
+                {t.showingFavorites}: {favoriteCount} {t.favoriteCount}
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Gemstones Grid - Mobile Optimized */}
+      {/* Gemstones Grid - Enhanced with Favorites */}
       <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {filteredAndSortedGemstones.length === 0 ? (
@@ -456,10 +536,14 @@ const Collections = ({ language }) => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="text-4xl sm:text-6xl mb-4">💎</div>
-              <h3 className="text-xl sm:text-2xl font-semibold mb-2">{t.noResults}</h3>
+              <div className="text-4xl sm:text-6xl mb-4">
+                {showFavorites ? '💝' : '💎'}
+              </div>
+              <h3 className="text-xl sm:text-2xl font-semibold mb-2">
+                {showFavorites ? t.noFavorites : t.noResults}
+              </h3>
               <Button onClick={clearFilters} className="mt-4">
-                {t.clearFilters}
+                {showFavorites ? t.showAll : t.clearFilters}
               </Button>
             </motion.div>
           ) : (
@@ -489,9 +573,9 @@ const Collections = ({ language }) => {
                           onClick={() => toggleWishlist(gem.id)}
                         >
                           <Heart 
-                            className={`h-3 w-3 sm:h-4 sm:w-4 transition-colors duration-300 ${
+                            className={`h-3 w-3 sm:h-4 sm:w-4 transition-colors duration-300 favorites-heart ${
                               likedProducts.has(gem.id) 
-                                ? 'fill-red-500 text-red-500' 
+                                ? 'liked' 
                                 : 'text-gray-600'
                             }`} 
                           />
@@ -540,10 +624,11 @@ const Collections = ({ language }) => {
                         <div className="flex flex-col gap-2">
                           <Button 
                             size="sm" 
-                            className="w-full bg-primary-gold hover:bg-yellow-600 text-white gemstone-sparkle text-xs sm:text-sm min-h-8 sm:min-h-9"
+                            className="w-full whatsapp-button text-xs sm:text-sm min-h-8 sm:min-h-9"
                             onClick={() => openWhatsAppInquiry(gem)}
                           >
-                            {t.viewDetails}
+                            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                            {t.inquire}
                           </Button>
                           <Button 
                             size="sm" 
@@ -551,6 +636,7 @@ const Collections = ({ language }) => {
                             className="w-full text-xs sm:text-sm min-h-8 sm:min-h-9"
                             onClick={() => openQuickView(gem)}
                           >
+                            <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                             {t.quickView}
                           </Button>
                         </div>
@@ -568,4 +654,3 @@ const Collections = ({ language }) => {
 };
 
 export default Collections;
-
