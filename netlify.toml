@@ -1,2 +1,8 @@
+# netlify.toml
+[build]
+  publish = "dist"        # or whatever your output folder is
+  command = "pnpm run build"
+
 [build.environment]
+  # Pin Netlify’s Corepack to exactly this PNPM version:
   PNPM_VERSION = "10.12.4"
